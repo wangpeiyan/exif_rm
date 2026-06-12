@@ -1,11 +1,16 @@
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
-    id("maven-publish")
+    id("com.vanniktech.maven.publish")
+    id("com.gradleup.nmcp")
+    signing
 }
 
+group = "io.github.wangpeiyan"
+version = "0.1.0"
+
 android {
-    namespace = "com.example.exifrm.library"
+    namespace = "io.github.wangpeiyan.exifrm"
     compileSdk = 36
 
     defaultConfig {
@@ -52,18 +57,59 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 }
 
-publishing {
-    publications {
-        register<MavenPublication>("release") {
-            groupId = "com.example.exifrm"
-            artifactId = "exif-rm"
-            version = "0.1.0"
+// Load signing credentials from local.properties
+val localProperties = java.util.Properties().apply {
+    val localFile = rootProject.file("local.properties")
+    if (localFile.exists()) {
+        load(localFile.inputStream())
+    }
+}
 
-            afterEvaluate {
-                from(components["release"])
+signing {
+    val keyId = localProperties.getProperty("signing.keyId")
+        ?: System.getenv("ORG_GRADLE_PROJECT_signingKeyId")
+    val privateKey = localProperties.getProperty("signing.private")
+        ?: System.getenv("ORG_GRADLE_PROJECT_signingPrivateKey")
+    val password = localProperties.getProperty("signing.password")
+        ?: System.getenv("ORG_GRADLE_PROJECT_signingPassword")
+
+    if (keyId != null && privateKey != null && password != null) {
+        useInMemoryPgpKeys(keyId, privateKey, password)
+    }
+    sign(publishing.publications)
+}
+
+mavenPublishing {
+    coordinates(group.toString(), "exif-rm", version.toString())
+
+    pom {
+        name = "exif-rm"
+        description = "Remove metadata from JPEG, PNG, PDF, DOCX, XLSX, PPTX files"
+        inceptionYear = "2025"
+        url = "https://github.com/wangpeiyan/exif_rm"
+        licenses {
+            license {
+                name = "The MIT License"
+                url = "https://opensource.org/licenses/MIT"
+                distribution = "repo"
             }
         }
+        developers {
+            developer {
+                id = "wangpeiyan"
+                name = "peiyan_wang"
+                url = "https://github.com/wangpeiyan"
+            }
+        }
+        scm {
+            url = "https://github.com/wangpeiyan/exif_rm"
+            connection = "scm:git:git://github.com/wangpeiyan/exif_rm.git"
+            developerConnection = "scm:git:ssh://git@github.com/wangpeiyan/exif_rm.git"
+        }
     }
+
+    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL)
+    signAllPublications()
 }
 
 // Task to build Rust library
