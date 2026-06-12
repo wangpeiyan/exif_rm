@@ -41,12 +41,6 @@ android {
             jniLibs.srcDir("../../target/mobile/android/jniLibs")
         }
     }
-
-    publishing {
-        singleVariant("release") {
-            withSourcesJar()
-        }
-    }
 }
 
 dependencies {
