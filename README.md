@@ -103,14 +103,16 @@ This produces an XCFramework and Swift bindings. Add the Swift Package at `ios-r
 
 ### Android
 
-Prerequisites: Android NDK, `cargo-ndk` (`cargo install cargo-ndk`).
+Prerequisites: Android NDK, `cargo-ndk` (`cargo install cargo-ndk`), JDK 21.
 
 ```bash
 export ANDROID_NDK_HOME=$HOME/Library/Android/sdk/ndk/<version>
 ./scripts/build-android.sh
+cd android
+./gradlew :library:assembleRelease
 ```
 
-This produces `.so` files for arm64-v8a, armeabi-v7a, x86_64, and x86, plus Kotlin bindings. Copy the `jniLibs/` directory and bindings into your Android project. See `android/` for a sample Kotlin/Compose app.
+This produces `library-release.aar` containing native libraries for arm64-v8a and armeabi-v7a, plus Kotlin/UniFFI bindings. Copy the AAR into your project's `libs/` directory and add it as a dependency. See `android/` for a sample Kotlin/Compose app.
 
 ## API
 
