@@ -1,0 +1,140 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build iOS XCFramework
+        run: ./scripts/build-ios.sh
+
+      - name: Package iOS artifact
+        run: |
+          cd target/mobile/ios
+          zip -r "${{ github.workspace }}/exif_rm-ios-xcframework.zip" \
+            exif_rmFFI.xcframework \
+            swift/exif_rm.swift \
+            -x "*.DS_Store"
+
+      - name: Upload iOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: exif_rm-ios-xcframework
+          path: exif_rm-ios-xcframework.zip
+
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi
+
+      - name: Install cargo-ndk
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-ndk
+
+      - name: Build host library (for bindgen)
+        run: cargo build --release
+
+      - name: Build Android .so files
+        run: |
+          mkdir -p target/mobile/android/jniLibs/arm64-v8a
+          mkdir -p target/mobile/android/jniLibs/armeabi-v7a
+          cargo ndk -t arm64-v8a -t armeabi-v7a build --release
+          cp target/aarch64-linux-android/release/libexif_rm.so \
+            target/mobile/android/jniLibs/arm64-v8a/
+          cp target/armv7-linux-androideabi/release/libexif_rm.so \
+            target/mobile/android/jniLibs/armeabi-v7a/
+
+      - name: Generate Kotlin bindings
+        run: |
+          mkdir -p target/mobile/android/kotlin
+          cargo run --bin uniffi-bindgen generate \
+            --library target/release/libexif_rm.so \
+            --language kotlin \
+            --out-dir target/mobile/android/kotlin
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK components
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager --install \
+            "platform-tools" \
+            "build-tools;36.0.0" \
+            "platforms;android-36"
+
+      - name: Build AAR with Gradle
+        run: |
+          mkdir -p output
+          BINDINGS_SRC="target/mobile/android/kotlin/uniffi"
+          BINDINGS_DST="android/library/src/main/java/uniffi"
+          mkdir -p "$BINDINGS_DST"
+          cp -r "$BINDINGS_SRC"/* "$BINDINGS_DST/"
+          cd android
+          ./gradlew :library:assembleRelease --info 2>&1 | tail -100
+          cp library/build/outputs/aar/library-release.aar ../output/library-release.aar
+
+      - name: Upload Android artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: exif_rm-android-aar
+          path: output/library-release.aar
+
+  release:
+    needs: [build-ios, build-android]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download iOS artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: exif_rm-ios-xcframework
+          path: ./artifacts/ios
+
+      - name: Download Android artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: exif_rm-android-aar
+          path: ./artifacts/android
+
+      - name: Rename Android AAR
+        run: mv ./artifacts/android/library-release.aar ./artifacts/android/exif_rm-android.aar
+
+      - name: Generate checksums
+        run: |
+          sha256sum ./artifacts/ios/exif_rm-ios-xcframework.zip > ./artifacts/ios/exif_rm-ios-xcframework.zip.sha256
+          sha256sum ./artifacts/android/exif_rm-android.aar > ./artifacts/android/exif_rm-android.aar.sha256
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            ./artifacts/ios/exif_rm-ios-xcframework.zip
+            ./artifacts/ios/exif_rm-ios-xcframework.zip.sha256
+            ./artifacts/android/exif_rm-android.aar
+            ./artifacts/android/exif_rm-android.aar.sha256

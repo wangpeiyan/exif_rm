@@ -1,0 +1,29 @@
+/target
+/output
+
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/library/build/
+android/library/src/main/java/uniffi/
+android/local.properties
+android/.idea/
+android/*.iml
+android/captures/
+android/externalNativeBuild/
+android/.cxx/
+
+# iOS
+ios-rust/Sources/exif_rmFFI/exif_rmFFI.xcframework/
+ios-rust/Sources/ExifRmRust/exif_rm.swift
+ios-rust/.build/
+ios-rust/.swiftpm/
+ios/.build/
+ios/.swiftpm/
+ios/ExifRm.xcodeproj/project.xcworkspace/xcuserdata/
+ios/ExifRm.xcodeproj/xcuserdata/
+
+# Internal
+docs/superpowers/
+.claude/

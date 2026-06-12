@@ -1,0 +1,10 @@
+#[cfg(feature = "jpeg")]
+pub mod jpeg;
+#[cfg(feature = "png")]
+pub mod png;
+#[cfg(feature = "pdf")]
+pub mod pdf;
+#[cfg(feature = "office")]
+pub mod office;
+#[cfg(feature = "video")]
+pub mod video;

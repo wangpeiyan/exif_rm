@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ExifRm</string>
+    <string name="select_image">Select Image</string>
+    <string name="strip_metadata">Strip Metadata</string>
+    <string name="save">Save</string>
+    <string name="share">Share</string>
+    <string name="no_image_selected">No image selected</string>
+    <string name="metadata_detected">Metadata Detected</string>
+    <string name="processing">Processing…</string>
+    <string name="metadata_stripped">Metadata stripped successfully</string>
+</resources>
