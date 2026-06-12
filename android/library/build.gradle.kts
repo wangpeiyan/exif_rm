@@ -4,8 +4,7 @@ plugins {
     id("com.vanniktech.maven.publish")
 }
 
-import com.vanniktech.maven.publish.JavadocJar
-import com.vanniktech.maven.publish.SourcesJar
+import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
 
 group = "io.github.wangpeiyan"
 version = "0.1.0"
@@ -61,10 +60,12 @@ dependencies {
 mavenPublishing {
     coordinates(group.toString(), "exif-rm", version.toString())
 
-    configureBasedOnAppliedPlugins(
-        javadocJar = JavadocJar.Empty(),
-        sourcesJar = SourcesJar.Sources(),
-    )
+    @Suppress("DEPRECATION")
+    configure(AndroidSingleVariantLibrary(
+        variant = "release",
+        sourcesJar = true,
+        publishJavadocJar = true,
+    ))
 
     pom {
         name = "exif-rm"
