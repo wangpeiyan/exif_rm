@@ -5,4 +5,4 @@ A Rust library + CLI for stripping metadata from files, with UniFFI mobile bindi
 ## Preferences
 
 - **SOCKS5 proxy is configured** for this repo (`socks5://127.0.0.1:1080`) via `git config --local http.proxy`. If git push fails with network errors, the proxy should handle it. If the proxy isn't running, use `gh` API as fallback.
-- **Maven Central publishing** uses the Vanniktech plugin. Run `./gradlew :library:publishAndReleaseToMavenCentral` from the `android/` directory. Credentials are in `local.properties` (local) or `ORG_GRADLE_PROJECT_*` env vars (CI). The groupId is `io.github.wangpeiyan`.
+- **Maven Central publishing** uses the Vanniktech plugin. Run `./gradlew :library:publishAndReleaseToMavenCentral` from the `android/` directory. Signing credentials go in `~/.gradle/gradle.properties` as `signingInMemoryKey`, `signingInMemoryKeyId`, `signingInMemoryKeyPassword` (or `ORG_GRADLE_PROJECT_signingInMemoryKey*` env vars for CI). Sonatype tokens go as `mavenCentralUsername`/`mavenCentralPassword`. The groupId is `io.github.wangpeiyan`.

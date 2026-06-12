@@ -2,8 +2,6 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
     id("com.vanniktech.maven.publish")
-    id("com.gradleup.nmcp")
-    signing
 }
 
 group = "io.github.wangpeiyan"
@@ -57,30 +55,16 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 }
 
-// Load signing credentials from local.properties
-val localProperties = java.util.Properties().apply {
-    val localFile = rootProject.file("local.properties")
-    if (localFile.exists()) {
-        load(localFile.inputStream())
-    }
-}
-
-signing {
-    val keyId = localProperties.getProperty("signing.keyId")
-        ?: System.getenv("ORG_GRADLE_PROJECT_signingKeyId")
-    val privateKey = localProperties.getProperty("signing.private")
-        ?: System.getenv("ORG_GRADLE_PROJECT_signingPrivateKey")
-    val password = localProperties.getProperty("signing.password")
-        ?: System.getenv("ORG_GRADLE_PROJECT_signingPassword")
-
-    if (keyId != null && privateKey != null && password != null) {
-        useInMemoryPgpKeys(keyId, privateKey, password)
-    }
-    sign(publishing.publications)
-}
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.SourcesJar
 
 mavenPublishing {
     coordinates(group.toString(), "exif-rm", version.toString())
+
+    configureBasedOnAppliedPlugins(
+        javadocJar = JavadocJar.Empty(),
+        sourcesJar = SourcesJar.Sources(),
+    )
 
     pom {
         name = "exif-rm"
