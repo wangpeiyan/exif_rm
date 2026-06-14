@@ -23,6 +23,7 @@ jobs:
           VERSION="${GITHUB_REF_NAME#v}"
           sed -i '' "s/^version = \".*\"/version = \"${VERSION}\"/" Cargo.toml
           sed -i '' "s/^VERSION_NAME=.*/VERSION_NAME=${VERSION}/" android/gradle.properties
+          sed -i '' "s/^version = \".*\"/version = \"${VERSION}\"/" android/library/build.gradle.kts
 
       - name: Build iOS XCFramework
         run: ./scripts/build-ios.sh
@@ -51,6 +52,7 @@ jobs:
           VERSION="${GITHUB_REF_NAME#v}"
           sed -i "s/^version = \".*\"/version = \"${VERSION}\"/" Cargo.toml
           sed -i "s/^VERSION_NAME=.*/VERSION_NAME=${VERSION}/" android/gradle.properties
+          sed -i "s/^version = \".*\"/version = \"${VERSION}\"/" android/library/build.gradle.kts
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable

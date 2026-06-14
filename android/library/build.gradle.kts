@@ -7,7 +7,7 @@ plugins {
 import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
 
 group = "io.github.wangpeiyan"
-version = "0.1.0"
+version = "0.1.2"
 
 android {
     namespace = "io.github.wangpeiyan.exifrm"
