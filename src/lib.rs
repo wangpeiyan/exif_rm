@@ -41,6 +41,8 @@ fn get_remover(format: FileFormat) -> Box<dyn MetadataRemover> {
         }
         #[cfg(feature = "video")]
         FileFormat::Mp4 => Box::new(remove::video::VideoRemover),
+        #[cfg(feature = "webp")]
+        FileFormat::Webp => Box::new(remove::webp::WebpRemover),
         #[allow(unreachable_patterns)]
         _ => panic!("format not supported in this build configuration"),
     }
