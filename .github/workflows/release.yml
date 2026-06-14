@@ -18,6 +18,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Sync version from tag
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          sed -i '' "s/^version = \".*\"/version = \"${VERSION}\"/" Cargo.toml
+          sed -i '' "s/^VERSION_NAME=.*/VERSION_NAME=${VERSION}/" android/gradle.properties
+
       - name: Build iOS XCFramework
         run: ./scripts/build-ios.sh
 
@@ -39,6 +45,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Sync version from tag
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          sed -i "s/^version = \".*\"/version = \"${VERSION}\"/" Cargo.toml
+          sed -i "s/^VERSION_NAME=.*/VERSION_NAME=${VERSION}/" android/gradle.properties
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
