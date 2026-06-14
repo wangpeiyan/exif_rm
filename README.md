@@ -1,13 +1,13 @@
 # exif_rm
 
-Remove metadata from JPEG, PNG, PDF, DOCX, XLSX, PPTX, MP4, and MOV files.
+Remove metadata from JPEG, PNG, WebP, PDF, DOCX, XLSX, PPTX, MP4, and MOV files.
 
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 ## What It Does
 
 - Strips EXIF, XMP, IPTC, ICC profiles, comments, and timestamps
-- Works on images (JPEG, PNG), documents (PDF, DOCX, XLSX, PPTX), and video (MP4, MOV)
+- Works on images (JPEG, PNG, WebP), documents (PDF, DOCX, XLSX, PPTX), and video (MP4, MOV)
 - Pure Rust core with no runtime dependencies
 - CLI tool included
 - UniFFI bindings for iOS and Android
@@ -18,6 +18,7 @@ Remove metadata from JPEG, PNG, PDF, DOCX, XLSX, PPTX, MP4, and MOV files.
 |--------|------------------|
 | JPEG | EXIF, XMP, IPTC, ICC profile, comments |
 | PNG | eXIf, text chunks (tEXt/zTXt/iTXt), iCCP, tIME |
+| WebP | EXIF, XMP, ICC profile |
 | PDF | /Info dictionary, /Metadata stream |
 | DOCX | core.xml, app.xml, custom.xml |
 | XLSX | core.xml, app.xml, custom.xml |
@@ -133,7 +134,7 @@ This produces `library-release.aar` containing native libraries for arm64-v8a an
 **Key types:**
 
 - `RemovalOptions` — granular control over which metadata categories to remove
-- `FileFormat` — supported format enum (Jpeg, Png, Pdf, Docx, Xlsx, Pptx)
+- `FileFormat` — supported format enum (Jpeg, Png, Webp, Pdf, Docx, Xlsx, Pptx, Mp4)
 - `Error` — errors (UnsupportedFormat, InvalidData, EncryptedPdf, Io, External)
 
 Full API documentation: [docs.rs/exif_rm](https://docs.rs/exif_rm)
