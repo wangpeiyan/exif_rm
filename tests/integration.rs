@@ -1,5 +1,5 @@
 use std::io::Read;
-use exif_rm::{strip_metadata, strip_metadata_owned, detect_format, RemovalOptions, FileFormat};
+use exif_rm::{strip_metadata, strip_metadata_with, strip_metadata_owned, detect_format, RemovalOptions, FileFormat};
 
 // --- JPEG tests ---
 
@@ -482,9 +482,78 @@ fn create_minimal_webp() -> Vec<u8> {
     webp
 }
 
+fn create_webp_with_metadata() -> Vec<u8> {
+    let vp8_payload: &[u8] = &[
+        0x9D, 0x01, 0x2A, 0x00, 0x01, 0x00, 0x01, 0x00, 0x02, 0x00, 0x02,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    ];
+    let exif_data: &[u8] = b"Exif\x00\x00MM\x00\x2a\x00\x00\x00\x08\x00\x00\x00\x00\x00\x00";
+    let xmp_data: &[u8] = b"<x:xmpmeta>fake xmp</x:xmpmeta>";
+    let icc_data: &[u8] = b"fake icc profile!"; // 18 bytes, even
+
+    // Helper: write a RIFF chunk with padding for odd-length payloads
+    let add_chunk = |buf: &mut Vec<u8>, fourcc: &[u8], data: &[u8]| {
+        buf.extend_from_slice(fourcc);
+        buf.extend_from_slice(&(data.len() as u32).to_le_bytes());
+        buf.extend_from_slice(data);
+        if data.len() % 2 != 0 {
+            buf.push(0); // RIFF pad byte for odd-length chunks
+        }
+    };
+
+    let mut payload = Vec::new();
+    payload.extend_from_slice(b"WEBP");
+    add_chunk(&mut payload, b"VP8 ", vp8_payload);
+    add_chunk(&mut payload, b"EXIF", exif_data);
+    add_chunk(&mut payload, b"XMP ", xmp_data);
+    add_chunk(&mut payload, b"ICCP", icc_data);
+
+    let mut webp = Vec::new();
+    webp.extend_from_slice(b"RIFF");
+    webp.extend_from_slice(&(payload.len() as u32).to_le_bytes());
+    webp.extend_from_slice(&payload);
+    webp
+}
+
 #[test]
 fn test_webp_format_detection() {
-    let input = create_minimal_webp();
+    let input = create_webp_with_metadata();
     let format = detect_format(&input).unwrap();
     assert_eq!(format, FileFormat::Webp);
+}
+
+#[test]
+fn test_webp_strip_removes_exif_and_xmp() {
+    let input = create_webp_with_metadata();
+    let output = strip_metadata(&input).unwrap();
+    assert!(!output.windows(4).any(|w| w == b"EXIF"));
+    assert!(!output.windows(4).any(|w| w == b"XMP "));
+    assert!(output.windows(4).any(|w| w == b"ICCP"));
+    assert!(output.windows(4).any(|w| w == b"VP8 "));
+}
+
+#[test]
+fn test_webp_strip_icc_when_option_set() {
+    let input = create_webp_with_metadata();
+    let options = RemovalOptions { icc_profile: true, ..RemovalOptions::default() };
+    let output = strip_metadata_with(&input, &options).unwrap();
+    assert!(!output.windows(4).any(|w| w == b"ICCP"));
+}
+
+#[test]
+fn test_webp_preserves_vp8() {
+    let input = create_webp_with_metadata();
+    let output = strip_metadata(&input).unwrap();
+    assert!(output.windows(4).any(|w| w == b"VP8 "));
+    assert!(output.starts_with(b"RIFF"));
+    assert!(&output[8..12] == b"WEBP");
+}
+
+#[test]
+fn test_webp_no_metadata_still_valid() {
+    let input = create_minimal_webp();
+    let output = strip_metadata(&input).unwrap();
+    assert!(output.starts_with(b"RIFF"));
+    assert!(&output[8..12] == b"WEBP");
+    assert!(output.windows(4).any(|w| w == b"VP8 "));
 }
