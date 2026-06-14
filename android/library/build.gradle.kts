@@ -6,11 +6,11 @@ plugins {
 
 import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
 
-group = "io.github.wangpeiyan"
+group = "io.github.vexorsis"
 version = "0.1.2"
 
 android {
-    namespace = "io.github.wangpeiyan.exifrm"
+    namespace = "io.github.vexorsis.exifrm"
     compileSdk = 36
 
     defaultConfig {
@@ -65,7 +65,7 @@ mavenPublishing {
         name = "exif-rm"
         description = "Remove metadata from JPEG, PNG, PDF, DOCX, XLSX, PPTX files"
         inceptionYear = "2025"
-        url = "https://github.com/wangpeiyan/exif_rm"
+        url = "https://github.com/vexorsis/exif_rm"
         licenses {
             license {
                 name = "The MIT License"
@@ -75,15 +75,15 @@ mavenPublishing {
         }
         developers {
             developer {
-                id = "wangpeiyan"
+                id = "vexorsis"
                 name = "peiyan_wang"
-                url = "https://github.com/wangpeiyan"
+                url = "https://github.com/vexorsis"
             }
         }
         scm {
-            url = "https://github.com/wangpeiyan/exif_rm"
-            connection = "scm:git:git://github.com/wangpeiyan/exif_rm.git"
-            developerConnection = "scm:git:ssh://git@github.com/wangpeiyan/exif_rm.git"
+            url = "https://github.com/vexorsis/exif_rm"
+            connection = "scm:git:git://github.com/vexorsis/exif_rm.git"
+            developerConnection = "scm:git:ssh://git@github.com/vexorsis/exif_rm.git"
         }
     }
 

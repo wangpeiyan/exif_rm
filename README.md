@@ -70,7 +70,7 @@ exif_rm -q photo.jpg
 
 ## Prebuilt Packages
 
-Download prebuilt packages from [GitHub Releases](https://github.com/wangpeiyan/exif_rm/releases).
+Download prebuilt packages from [GitHub Releases](https://github.com/vexorsis/exif_rm/releases).
 
 ### iOS
 
@@ -95,7 +95,7 @@ dependencies {
 The library is available on Maven Central. Add to your `build.gradle`:
 
 ```groovy
-implementation("io.github.wangpeiyan:exif-rm:0.1.0")
+implementation("io.github.vexorsis:exif-rm:0.1.0")
 ```
 
 ## Building from Source (Mobile)
